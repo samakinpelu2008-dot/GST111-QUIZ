@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PROF SAM ONLINE CLASS TEST</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="app">
+    <!-- Start Screen -->
+    <div id="start-screen" class="card">
+      <h1>PROF SAM ONLINE CLASS TEST</h1>
+      <p class="subtitle">PROF SAM WANTS THE BEST, SO DO YOUR BEST</p>
+      <p>You have <strong>20 minutes</strong> to complete 50 questions.<br>
+      Leaving this page twice will submit automatically.</p>
+      <input type="text" id="examCode" placeholder="Enter Exam Code" />
+      <button id="startBtn">Start Test</button>
+    </div>
+
+    <!-- Quiz Screen -->
+    <div id="quiz-screen" class="hidden">
+      <div class="top-bar">
+        <span id="timer">20:00</span>
+        <span id="questionCount"></span>
+      </div>
+      <div id="question-container" class="fade"></div>
+      <div class="buttons">
+        <button id="prevBtn">Previous</button>
+        <button id="nextBtn">Next</button>
+        <button id="submitBtn" class="hidden">Submit</button>
+      </div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="result-screen" class="hidden card">
+      <h2>Test Completed ✅</h2>
+      <p id="result-message"></p>
+      <p id="exam-code-display"></p>
+      <p id="score-display"></p>
+      <p id="rating-display"></p>
+      <p class="note">Take a screenshot of this page as proof.</p>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
