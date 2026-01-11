@@ -8,21 +8,20 @@ body{font-family:Arial;background:#f4f6fa;padding:20px}
 .container{max-width:900px;margin:auto;background:#fff;padding:20px;border-radius:8px}
 .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
 #timer{font-weight:bold;color:#b91c1c}
-.question-box{margin:20px 0}
 .option{display:block;margin:6px 0}
-.nav{display:flex;justify-content:space-between;margin-top:20px}
-.navigator{display:grid;grid-template-columns:repeat(auto-fill,40px);gap:6px;margin-top:20px}
+.nav{display:flex;justify-content:space-between;margin-top:15px}
+.navigator{display:grid;grid-template-columns:repeat(auto-fill,40px);gap:6px;margin-top:15px}
 .navigator button{padding:6px;border:none;border-radius:4px;cursor:pointer}
-.navigator .unsolved{background:#e5e7eb}
-.navigator .solved{background:#22c55e;color:#fff}
-button.main{background:#2563eb;color:#fff;border:none;padding:10px 16px;border-radius:5px}
-button.main:hover{background:#1e40af}
+.unsolved{background:#e5e7eb}
+.solved{background:#22c55e;color:#fff}
+.main{background:#2563eb;color:#fff;border:none;padding:10px 16px;border-radius:5px;cursor:pointer}
+.main:hover{background:#1e40af}
+.review{margin-top:20px}
 </style>
 </head>
 <body>
 <div class="container">
-<h2>LAUTECH CBT – English (50 Questions)</h2>
-<div class="top">
+<h2>LAUTECH CBT – English (50 Questions)</h2><div class="top">
 <select id="timeSelect">
 <option value="10">10 mins</option>
 <option value="20">20 mins</option>
@@ -30,20 +29,18 @@ button.main:hover{background:#1e40af}
 <option value="40">40 mins</option>
 </select>
 <div id="timer">Time: --:--</div>
+</div><button class="main" onclick="startQuiz()">Start Exam</button>
+
+<div id="exam" style="display:none">
+  <div id="questionBox"></div>  <div class="nav">
+    <button class="main" onclick="prevQ()">Previous</button>
+    <button class="main" onclick="nextQ()">Next</button>
+    <button class="main" onclick="submitQuiz()">Submit</button>
+  </div>  <div class="navigator" id="navigator"></div>
+  <div id="result"></div>
 </div>
-<button class="main" onclick="startQuiz()">Start Exam</button>
-<div id="quiz" style="display:none">
-<div class="question-box" id="questionBox"></div>
-<div class="nav">
-<button class="main" onclick="prevQ()">Previous</button>
-<button class="main" onclick="nextQ()">Next</button>
-<button class="main" onclick="submitQuiz()">Submit</button>
-</div>
-<div class="navigator" id="navigator"></div>
-<div id="result" style="font-weight:bold;text-align:center;margin-top:15px"></div>
-</div>
-</div>
-<script>
+</div><script>
+// ===== QUESTIONS (ALL 50) =====
 const questions=[
 {q:"As it was impossible to convey the corpse home, the body was ___",o:["Incriminated","Preserved","Embalmed","Cremated"],a:3},
 {q:"Bursary awards were re-introduced ___ due consideration",o:["in view of","because of","owing to","after"],a:3},
@@ -53,7 +50,7 @@ const questions=[
 {q:"Sentence which contains two independent clauses is",o:["Simple","Compound","Complex","Phrase"],a:1},
 {q:"There is always ___ of talents among age-mates",o:["An anomaly","A distinction","An inequality","An abundance"],a:2},
 {q:"It is advisable to ___ any polluted water",o:["Clear","Sanitize","Sterilize","Purify"],a:3},
-{q:"He was asked to investigate thoroughly but did it ___",o:["Hurriedly","Impatiently","Haphazardly","Impartially"],a:2},
+{q:"He carried out the investigation ___",o:["Hurriedly","Impatiently","Haphazardly","Impartially"],a:2},
 {q:"The committee determined the immediate and ___ causes",o:["Delayed","Obscure","Remote","Later"],a:2},
 {q:"Sentences are broadly classified into",o:["4","2","5","3"],a:3},
 {q:"There are ___ broad types of clause in English",o:["2","3","4","5"],a:3},
@@ -89,22 +86,70 @@ const questions=[
 {q:"There ___ many services available",o:["have being","has been","is","are"],a:3},
 {q:"A popular choice ___ the Premier Hotel suites",o:["is","are","has being","are being"],a:0}
 ];
+
+// ===== LOGIC =====
 questions.sort(()=>Math.random()-0.5);
-let index=0,answers=new Array(questions.length).fill(null),timerInt;
+let index=0;
+let answers=new Array(questions.length).fill(null);
+let timer;
+
 const qBox=document.getElementById('questionBox');
-const navBox=document.getElementById('navigator');function startQuiz(){ document.getElementById('quiz').style.display='block'; startTimer(); buildNavigator(); showQuestion(); }
+const navBox=document.getElementById('navigator');
 
-function showQuestion(){ const q=questions[index]; qBox.innerHTML=<h3>Question ${index+1} of ${questions.length}</h3><p>${q.q}</p>+q.o.map((opt,i)=><label class='option'><input type='radio' name='opt' ${answers[index]==i?'checked':''} onclick='saveAns(${i})'> ${opt}</label>).join(''); updateNavigator(); }
+function startQuiz(){
+ document.getElementById('exam').style.display='block';
+ buildNavigator();
+ showQuestion();
+ startTimer();
+}
 
-function saveAns(i){answers[index]=i;updateNavigator();} function nextQ(){if(index<questions.length-1){index++;showQuestion();}} function prevQ(){if(index>0){index--;showQuestion();}}
+function showQuestion(){
+ const q=questions[index];
+ qBox.innerHTML=`<h3>Question ${index+1} of ${questions.length}</h3><p>${q.q}</p>`+
+ q.o.map((opt,i)=>`<label class='option'><input type='radio' name='opt' ${answers[index]===i?'checked':''} onclick='saveAnswer(${i})'> ${opt}</label>`).join('');
+ updateNavigator();
+}
 
-function buildNavigator(){ navBox.innerHTML=''; questions.forEach((_,i)=>{ const b=document.createElement('button'); b.innerText=i+1; b.onclick=()=>{index=i;showQuestion();}; navBox.appendChild(b); }); }
+function saveAnswer(i){answers[index]=i;updateNavigator();}
+function nextQ(){if(index<questions.length-1){index++;showQuestion();}}
+function prevQ(){if(index>0){index--;showQuestion();}}
 
-function updateNavigator(){ [...navBox.children].forEach((b,i)=>{ b.className=answers[i]!==null?'solved':'unsolved'; }); }
+function buildNavigator(){
+ navBox.innerHTML='';
+ questions.forEach((_,i)=>{
+  const b=document.createElement('button');
+  b.textContent=i+1;
+  b.onclick=()=>{index=i;showQuestion();};
+  navBox.appendChild(b);
+ });
+}
 
-function submitQuiz(){ clearInterval(timerInt); let score=0; let review=''; answers.forEach((a,i)=>{ if(a===questions[i].a) score++; review+=<p><strong>Q${i+1}:</strong> ${questions[i].q}<br>Correct Answer: <span style='color:green'>${questions[i].o[questions[i].a]}</span></p>; }); let percent=((score/questions.length)*100).toFixed(2); document.getElementById('result').innerHTML=Score: ${score}/${questions.length}<br>Percentage: ${percent}%<hr>${review}; }
+function updateNavigator(){
+ [...navBox.children].forEach((b,i)=>{
+  b.className=answers[i]!==null?'solved':'unsolved';
+ });
+}
 
-function startTimer(){ let t=document.getElementById('timeSelect').value*60; timerInt=setInterval(()=>{ let m=Math.floor(t/60),s=t%60; document.getElementById('timer').innerText=Time: ${m}:${s.toString().padStart(2,'0')}; if(--t<0){submitQuiz();} },1000); } </script>
+function submitQuiz(){
+ clearInterval(timer);
+ let score=0;
+ let review="<div class='review'><h3>Answer Review</h3>";
+ answers.forEach((a,i)=>{
+  if(a===questions[i].a) score++;
+  review+=`<p><strong>Q${i+1}:</strong> ${questions[i].q}<br>Correct Answer: <span style='color:green'>${questions[i].o[questions[i].a]}</span></p>`;
+ });
+ review+='</div>';
+ let percent=((score/questions.length)*100).toFixed(2);
+ document.getElementById('result').innerHTML=`<h3>Score: ${score}/${questions.length}</h3><h3>Percentage: ${percent}%</h3>${review}`;
+}
 
-</body>
+function startTimer(){
+ let t=parseInt(document.getElementById('timeSelect').value)*60;
+ timer=setInterval(()=>{
+  let m=Math.floor(t/60),s=t%60;
+  document.getElementById('timer').textContent=`Time: ${m}:${String(s).padStart(2,'0')}`;
+  if(--t<0) submitQuiz();
+ },1000);
+}
+</script></body>
 </html>
