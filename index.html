@@ -1,121 +1,110 @@
 <!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>English Grammar Quiz (50 Questions)</title>
-  <style>
-    body { font-family: Arial, sans-serif; background:#f4f6fa; padding:20px; }
-    h1 { text-align:center; }
-    .container { max-width:1000px; margin:auto; background:#fff; padding:20px; border-radius:8px; }
-    .question { margin-bottom:18px; }
-    label { display:block; margin:4px 0; }
-    button { padding:10px 18px; font-size:16px; background:#2563eb; color:#fff; border:none; border-radius:5px; cursor:pointer; }
-    button:hover { background:#1e40af; }
-    .top-bar { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
-    #timer { font-size:18px; font-weight:bold; color:#b91c1c; }
-    .result { text-align:center; font-size:20px; margin-top:20px; font-weight:bold; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LAUTECH CBT – English Quiz</title>
+<style>
+body{font-family:Arial;background:#f4f6fa;padding:20px}
+.container{max-width:900px;margin:auto;background:#fff;padding:20px;border-radius:8px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+#timer{font-weight:bold;color:#b91c1c}
+.question-box{margin:20px 0}
+.option{display:block;margin:6px 0}
+.nav{display:flex;justify-content:space-between;margin-top:20px}
+.navigator{display:grid;grid-template-columns:repeat(auto-fill,40px);gap:6px;margin-top:20px}
+.navigator button{padding:6px;border:none;border-radius:4px;cursor:pointer}
+.navigator .unsolved{background:#e5e7eb}
+.navigator .solved{background:#22c55e;color:#fff}
+button.main{background:#2563eb;color:#fff;border:none;padding:10px 16px;border-radius:5px}
+button.main:hover{background:#1e40af}
+</style>
 </head>
 <body>
 <div class="container">
-  <h1>English Grammar Quiz (50 Questions)</h1>  <div class="top-bar">
-    <div>
-      <label><strong>Select Time:</strong>
-        <select id="timeSelect">
-          <option value="10">10 minutes</option>
-          <option value="20">20 minutes</option>
-          <option value="30">30 minutes</option>
-          <option value="40">40 minutes</option>
-        </select>
-      </label>
-      <button onclick="startQuiz()">Start Quiz</button>
-    </div>
-    <div id="timer">Time: --:--</div>
-  </div>  <form id="quizForm"></form>
-  <button onclick="submitQuiz()">Submit Quiz</button>
-  <div id="result" class="result"></div>
-</div><script>
-const questions = [
-{q:"As it was impossible to convey the corpse home, the body was ________.", o:["Incriminated","Preserved","Embalmed","Cremated"], a:3},
-{q:"Bursary awards were re-introduced _____________ due consideration", o:["in view of","because of","owing to","after"], a:3},
-{q:"Recent economic challenges strengthened John’s __________ to accept gateman’s job", o:["Resolve","Decision","Interest","Opening"], a:1},
-{q:"The modal auxiliary verb in ‘I can play football very well’ expresses", o:["Ability","Willingness","Possibility","Obligation"], a:0},
-{q:"If a student reads 2000 words in 6 minutes 40 seconds, the WPM is", o:["540","600","520","300"], a:3},
-{q:"Sentence which contains two independent clauses is", o:["Simple","Compound","Complex","Phrase"], a:1},
-{q:"There is always _____ of talents among age-mates", o:["An anomaly","A distinction","An inequality","An abundance"], a:2},
-{q:"It is advisable to _____ any polluted water", o:["Clear","Sanitize","Sterilize","Purify"], a:3},
-{q:"He carried out the investigation _______", o:["Hurriedly","Impatiently","Haphazardly","Impartially"], a:2},
-{q:"The committee determined the immediate and _____ causes", o:["Delayed","Obscure","Remote","Later"], a:2},
-{q:"Sentences are broadly classified into", o:["4","2","5","3"], a:3},
-{q:"There are ______ broad types of clause in English", o:["2","3","4","5"], a:3},
-{q:"The word 'spirit' in 'He behaves like a spirit' is a/an ___ noun", o:["Collective","Abstract","Proper","Genitive"], a:1},
-{q:"The verb 'read' in 'He reads seriously' is a/an ___ verb", o:["Abstract","Collective","Proper","Genitive"], a:0},
-{q:"In 'He gave her something to give them or us' there are ___ pronouns", o:["2","3","4","5"], a:3},
-{q:"The word 'Beautify' can be segmented as", o:["Beautify+o","Beauty+o","Beauty+fy","Be+autify"], a:2},
-{q:"Paragraphs are categorized into ___ major kinds", o:["2","3","4","5"], a:0},
-{q:"The morpheme added in 'used' is", o:["-ed","-d","-us","-u"], a:1},
-{q:"Paragraph coherence entails arrangement of ___ sentences", o:["Coherence","Meaningful","Logical","Sentential"], a:2},
-{q:"Percentage of noun elements in 'The students are in the class'", o:["24.2%","50%","66.6%","33.33%"], a:3},
-{q:"Words that link sentences smoothly are called", o:["Acronym devices","Important devices","Transitional devices","Parental devices"], a:2},
-{q:"My teacher and sister ___ advised me", o:["have","has","is","was"], a:1},
-{q:"Seven hours ___ spent already", o:["was been","is been","has been","have been"], a:2},
-{q:"Twenty kilometres ___ covered", o:["has been","have been","has being","have being"], a:0},
-{q:"I, your creator, ___ the one teaching you", o:["is","am","has been","have being"], a:1},
-{q:"More than one hostel ___ built annually", o:["have been","has being","are","is"], a:3},
-{q:"The President made a nation-wide ___", o:["Broadcast","Prophecy","Polemics","Decree"], a:0},
-{q:"Commission of inquiry ___ the award of contracts", o:["about","for","into","to"], a:2},
-{q:"Dr. Stone’s lecture gave me great ___", o:["Glimpse","Knowledge","Insight","Opening"], a:2},
-{q:"The former is a teacher and the ___ is a nurse", o:["Later","Other","Prior","Latter"], a:3},
-{q:"He wants ___ persons", o:["Experimental","Experienced","Exposed","Experience"], a:1},
-{q:"The Holy Book ___ we should be honest", o:["said","says","had said","was saying"], a:1},
-{q:"Evidence before us ___ the case", o:["proves","prove","are proving","are proven"], a:0},
-{q:"Neither the leader nor followers will lose ___ popularity", o:["his","their","the","our"], a:1},
-{q:"The workers as well as their boss ___ late often", o:["works","work","is working","does work late"], a:1},
-{q:"Four hours fifteen minutes ___ enough", o:["are","were","is","have been"], a:2},
-{q:"One of the lawmakers who ___ at the Senate", o:["are","was","were","is"], a:3},
-{q:"Aeroplane ___ strict monitoring", o:["requires","require","do requires","does require"], a:0},
-{q:"His routine ___ sweeping", o:["comprises","comprises of","consists","consist of"], a:2},
-{q:"How to read many books ___ not difficult", o:["are","has","is","have"], a:2},
-{q:"He earned his ___ degree", o:["masters","masters'","master's","none"], a:1},
-{q:"There ___ many services available", o:["have being","has been","is","are"], a:3},
-{q:"A popular choice ___ the Premier Hotel suites", o:["is","are","has being","are being"], a:0}
+<h2>LAUTECH CBT – English (50 Questions)</h2>
+<div class="top">
+<select id="timeSelect">
+<option value="10">10 mins</option>
+<option value="20">20 mins</option>
+<option value="30">30 mins</option>
+<option value="40">40 mins</option>
+</select>
+<div id="timer">Time: --:--</div>
+</div>
+<button class="main" onclick="startQuiz()">Start Exam</button>
+<div id="quiz" style="display:none">
+<div class="question-box" id="questionBox"></div>
+<div class="nav">
+<button class="main" onclick="prevQ()">Previous</button>
+<button class="main" onclick="nextQ()">Next</button>
+<button class="main" onclick="submitQuiz()">Submit</button>
+</div>
+<div class="navigator" id="navigator"></div>
+<div id="result" style="font-weight:bold;text-align:center;margin-top:15px"></div>
+</div>
+</div>
+<script>
+const questions=[
+{q:"As it was impossible to convey the corpse home, the body was ___",o:["Incriminated","Preserved","Embalmed","Cremated"],a:3},
+{q:"Bursary awards were re-introduced ___ due consideration",o:["in view of","because of","owing to","after"],a:3},
+{q:"Recent economic challenges strengthened John’s ___ to accept gateman’s job",o:["Resolve","Decision","Interest","Opening"],a:1},
+{q:"The modal auxiliary verb in ‘I can play football very well’ expresses",o:["Ability","Willingness","Possibility","Obligation"],a:0},
+{q:"If a student reads 2000 words in 6mins 40seconds, the WPM is",o:["540","600","520","300"],a:3},
+{q:"Sentence which contains two independent clauses is",o:["Simple","Compound","Complex","Phrase"],a:1},
+{q:"There is always ___ of talents among age-mates",o:["An anomaly","A distinction","An inequality","An abundance"],a:2},
+{q:"It is advisable to ___ any polluted water",o:["Clear","Sanitize","Sterilize","Purify"],a:3},
+{q:"He was asked to investigate thoroughly but did it ___",o:["Hurriedly","Impatiently","Haphazardly","Impartially"],a:2},
+{q:"The committee determined the immediate and ___ causes",o:["Delayed","Obscure","Remote","Later"],a:2},
+{q:"Sentences are broadly classified into",o:["4","2","5","3"],a:3},
+{q:"There are ___ broad types of clause in English",o:["2","3","4","5"],a:3},
+{q:"The word 'spirit' is a/an ___ noun",o:["Collective","Abstract","Proper","Genitive"],a:1},
+{q:"The verb 'read' in 'He reads seriously' is a/an ___ verb",o:["Abstract","Collective","Proper","Genitive"],a:0},
+{q:"In 'He gave her something to give them or us' there are ___ pronouns",o:["2","3","4","5"],a:3},
+{q:"The word 'Beautify' can be segmented as",o:["Beautify+o","Beauty+o","Beauty+fy","Be+autify"],a:2},
+{q:"Paragraphs are categorized into ___ major kinds",o:["2","3","4","5"],a:0},
+{q:"The morpheme added in 'used' is",o:["-ed","-d","-us","-u"],a:1},
+{q:"Paragraph coherence entails arrangement of ___ sentences",o:["Coherence","Meaningful","Logical","Sentential"],a:2},
+{q:"Percentage of noun elements in 'The students are in the class'",o:["24.2%","50%","66.6%","33.33%"],a:3},
+{q:"Words that link sentences smoothly are",o:["Acronym devices","Important devices","Transitional devices","Parental devices"],a:2},
+{q:"My teacher and sister ___ advised me",o:["have","has","is","was"],a:1},
+{q:"Seven hours ___ spent already",o:["was been","is been","has been","have been"],a:2},
+{q:"Twenty kilometres ___ covered",o:["has been","have been","has being","have being"],a:0},
+{q:"I, your creator, ___ the one teaching you",o:["is","am","has been","have being"],a:1},
+{q:"More than one hostel ___ built annually",o:["have been","has being","are","is"],a:3},
+{q:"The President made a nation-wide ___",o:["Broadcast","Prophecy","Polemics","Decree"],a:0},
+{q:"Commission of inquiry ___ the award of contracts",o:["about","for","into","to"],a:2},
+{q:"Dr. Stone’s lecture gave me great ___",o:["Glimpse","Knowledge","Insight","Opening"],a:2},
+{q:"The former is a teacher and the ___ is a nurse",o:["Later","Other","Prior","Latter"],a:3},
+{q:"He wants ___ persons",o:["Experimental","Experienced","Exposed","Experience"],a:1},
+{q:"The Holy Book ___ we should be honest",o:["said","says","had said","was saying"],a:1},
+{q:"Evidence before us ___ the case",o:["proves","prove","are proving","are proven"],a:0},
+{q:"Neither the leader nor followers will lose ___ popularity",o:["his","their","the","our"],a:1},
+{q:"The workers as well as their boss ___ late often",o:["works","work","is working","does work late"],a:1},
+{q:"Four hours fifteen minutes ___ enough",o:["are","were","is","have been"],a:2},
+{q:"One of the lawmakers who ___ at the Senate",o:["are","was","were","is"],a:3},
+{q:"Aeroplane ___ strict monitoring",o:["requires","require","do requires","does require"],a:0},
+{q:"His routine ___ sweeping",o:["comprises","comprises of","consists","consist of"],a:2},
+{q:"How to read many books ___ not difficult",o:["are","has","is","have"],a:2},
+{q:"My nephew earned his ___ degree",o:["masters","masters'","master's","none"],a:1},
+{q:"There ___ many services available",o:["have being","has been","is","are"],a:3},
+{q:"A popular choice ___ the Premier Hotel suites",o:["is","are","has being","are being"],a:0}
 ];
-
-const quizForm = document.getElementById('quizForm');
-// shuffle questions
 questions.sort(()=>Math.random()-0.5);
-questions.forEach((item, i)=>{
-  const div=document.createElement('div');
-  div.className='question';
-  div.innerHTML=`<h3>${i+1}. ${item.q}</h3>`+item.o.map((opt,j)=>`<label><input type="radio" name="q${i}" value="${j}"> ${opt}</label>`).join('');
-  quizForm.appendChild(div);
-});
+let index=0,answers=new Array(questions.length).fill(null),timerInt;
+const qBox=document.getElementById('questionBox');
+const navBox=document.getElementById('navigator');function startQuiz(){ document.getElementById('quiz').style.display='block'; startTimer(); buildNavigator(); showQuestion(); }
 
-let timerInterval;
-function startQuiz(){
-  clearInterval(timerInterval);
-  let time = parseInt(document.getElementById('timeSelect').value) * 60;
-  timerInterval = setInterval(()=>{
-    let m=Math.floor(time/60), s=time%60;
-    document.getElementById('timer').innerText=`Time: ${m}:${s.toString().padStart(2,'0')}`;
-    if(time--<=0){ clearInterval(timerInterval); submitQuiz(); }
-  },1000);
-}
+function showQuestion(){ const q=questions[index]; qBox.innerHTML=<h3>Question ${index+1} of ${questions.length}</h3><p>${q.q}</p>+q.o.map((opt,i)=><label class='option'><input type='radio' name='opt' ${answers[index]==i?'checked':''} onclick='saveAns(${i})'> ${opt}</label>).join(''); updateNavigator(); }
 
-function submitQuiz(){
-  clearInterval(timerInterval);
-  let score=0;
-  questions.forEach((q,i)=>{
-    const sel=document.querySelector(`input[name=q${i}]:checked`);
-    const options=document.getElementsByName(`q${i}`);
-    options.forEach(opt=>{
-      const label=opt.parentElement;
-      if(Number(opt.value)===q.a){ label.style.color='green'; }
-      if(opt.checked && Number(opt.value)!==q.a){ label.style.color='red'; }
-    });
-    if(sel && Number(sel.value)===q.a) score++;
-  });
-  document.getElementById('result').innerText=`Score: ${score} / ${questions.length}`;
-}
-</script></body>
+function saveAns(i){answers[index]=i;updateNavigator();} function nextQ(){if(index<questions.length-1){index++;showQuestion();}} function prevQ(){if(index>0){index--;showQuestion();}}
+
+function buildNavigator(){ navBox.innerHTML=''; questions.forEach((_,i)=>{ const b=document.createElement('button'); b.innerText=i+1; b.onclick=()=>{index=i;showQuestion();}; navBox.appendChild(b); }); }
+
+function updateNavigator(){ [...navBox.children].forEach((b,i)=>{ b.className=answers[i]!==null?'solved':'unsolved'; }); }
+
+function submitQuiz(){ clearInterval(timerInt); let score=0; let review=''; answers.forEach((a,i)=>{ if(a===questions[i].a) score++; review+=<p><strong>Q${i+1}:</strong> ${questions[i].q}<br>Correct Answer: <span style='color:green'>${questions[i].o[questions[i].a]}</span></p>; }); let percent=((score/questions.length)*100).toFixed(2); document.getElementById('result').innerHTML=Score: ${score}/${questions.length}<br>Percentage: ${percent}%<hr>${review}; }
+
+function startTimer(){ let t=document.getElementById('timeSelect').value*60; timerInt=setInterval(()=>{ let m=Math.floor(t/60),s=t%60; document.getElementById('timer').innerText=Time: ${m}:${s.toString().padStart(2,'0')}; if(--t<0){submitQuiz();} },1000); } </script>
+
+</body>
 </html>
