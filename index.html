@@ -3,194 +3,63 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ultimate Quiz App</title>
+<title>Quiz Admin Panel</title>
 <style>
-body { font-family: Arial, sans-serif; margin:0; background: #f5f6fa; display:flex; flex-direction:column; align-items:center; }
-header { width: 100%; background: #6f42c1; color: white; padding:1rem; text-align:center; font-size:1.5rem; }
-.card { width:90%; max-width:900px; margin:1rem auto; padding:2rem; background:white; border-radius:15px; box-shadow:0 5px 15px rgba(0,0,0,0.2);}
-#question-text { font-size:1.3rem; margin-bottom:1.5rem; }
-.option-btn { display:block; width:100%; text-align:left; padding:0.8rem 1rem; margin:0.5rem 0; border:2px solid #6f42c1; border-radius:10px; background:white; cursor:pointer; transition:all 0.3s; }
-.option-btn:hover { background:#f1f1f1; }
-.correct { background:#28a745 !important; color:white; }
-.wrong { background:#dc3545 !important; color:white; }
-.btn-container { display:flex; justify-content:space-between; margin-top:1rem; }
-.btn { padding:0.8rem 1.5rem; border:none; border-radius:10px; cursor:pointer; font-size:1rem; color:white; background:#6f42c1; transition:0.3s;}
-.btn:hover { background:#5a32a3; }
-#timer { font-size:1.2rem; margin-bottom:1rem; color:#333; }
-#result { font-size:1.4rem; text-align:center; }
-input, select { width: 100%; margin: 0.3rem 0 0.8rem 0; padding:0.5rem; font-size:1rem; }
-textarea { width:100%; margin:0.3rem 0 0.8rem 0; padding:0.5rem; font-size:1rem; resize:vertical; }
+  body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
+  textarea { width: 100%; height: 300px; }
+  button { padding: 10px 20px; margin-top: 10px; cursor: pointer; }
+  .message { margin-top: 10px; font-weight: bold; }
 </style>
 </head>
 <body>
 
-<header>Ultimate Quiz App</header>
+<h2>Quiz Admin Panel</h2>
+<p>Paste your questions below in this format:</p>
+<pre>
+{question: "Question text", options: ["A","B","C","D"], answer: 0},
+</pre>
 
-<!-- Home / Mode Selection -->
-<div class="card" id="home-card">
-    <h2>Select Mode</h2>
-    <button class="btn" onclick="startQuiz(15)">15 Questions</button>
-    <button class="btn" onclick="startQuiz(30)">30 Questions</button>
-    <button class="btn" onclick="startQuiz('all')">All Questions</button>
-    <button class="btn" onclick="startReadMode()">Read Mode</button>
-    <button class="btn" onclick="openAdminPanel()">Admin Panel</button>
-</div>
+<textarea id="questionInput" placeholder="Paste questions here..."></textarea>
+<br>
+<button onclick="saveQuestions()">Save Questions</button>
 
-<!-- Quiz Card -->
-<div class="card" id="quiz-card" style="display:none;">
-    <div id="timer"></div>
-    <div id="question-text"></div>
-    <div id="options"></div>
-    <div class="btn-container">
-        <button class="btn" onclick="prevQuestion()">Previous</button>
-        <button class="btn" onclick="nextQuestion()">Next</button>
-        <button class="btn" onclick="submitQuiz()">Submit</button>
-        <button class="btn" onclick="backHome()">Home</button>
-    </div>
-</div>
-
-<!-- Result Card -->
-<div class="card" id="result-card" style="display:none;">
-    <div id="result"></div>
-    <button class="btn" onclick="backHome()">Back to Home</button>
-</div>
-
-<!-- Admin Panel -->
-<div class="card" id="admin-card" style="display:none;">
-    <h2>Admin Panel - Add Questions</h2>
-    <label>Question:</label>
-    <textarea id="admin-question" rows="2"></textarea>
-    <label>Option 1:</label>
-    <input type="text" id="admin-opt0">
-    <label>Option 2:</label>
-    <input type="text" id="admin-opt1">
-    <label>Option 3:</label>
-    <input type="text" id="admin-opt2">
-    <label>Option 4:</label>
-    <input type="text" id="admin-opt3">
-    <label>Correct Answer:</label>
-    <select id="admin-answer">
-        <option value="0">Option 1</option>
-        <option value="1">Option 2</option>
-        <option value="2">Option 3</option>
-        <option value="3">Option 4</option>
-    </select>
-    <button class="btn" onclick="addQuestion()">Add Question</button>
-    <button class="btn" onclick="backHome()">Back to Home</button>
-    <p id="admin-msg" style="color:green;"></p>
-</div>
+<div class="message" id="message"></div>
 
 <script>
-// =================== Questions ===================
-let allQuestions = JSON.parse(localStorage.getItem("quizQuestions")) || [];
+let quizDatabase = []; // This will store all quiz questions
 
-// =================== Quiz Variables ===================
-let currentQuiz = [];
-let currentIndex = 0;
-let score = 0;
+function saveQuestions() {
+    const input = document.getElementById('questionInput').value.trim();
+    if (!input) {
+        document.getElementById('message').textContent = "Please paste some questions!";
+        return;
+    }
 
-// =================== Admin Panel ===================
-function openAdminPanel() {
-    document.getElementById("home-card").style.display = "none";
-    document.getElementById("quiz-card").style.display = "none";
-    document.getElementById("result-card").style.display = "none";
-    document.getElementById("admin-card").style.display = "block";
-}
-function addQuestion() {
-    const q = document.getElementById("admin-question").value.trim();
-    const opts = [
-        document.getElementById("admin-opt0").value.trim(),
-        document.getElementById("admin-opt1").value.trim(),
-        document.getElementById("admin-opt2").value.trim(),
-        document.getElementById("admin-opt3").value.trim()
-    ];
-    const ans = parseInt(document.getElementById("admin-answer").value);
+    try {
+        // Wrap the input in brackets to make it an array
+        const formattedInput = '[' + input.replace(/,\s*$/,'') + ']'; // remove trailing comma
+        const newQuestions = JSON.parse(formattedInput);
+        
+        // Validate each question
+        for (let q of newQuestions) {
+            if (!q.question || !q.options || typeof q.answer !== 'number') {
+                throw new Error("Each question must have 'question', 'options', and 'answer'.");
+            }
+        }
 
-    if(!q || opts.some(o=>!o)) { alert("Please fill all fields"); return; }
+        // Add to main database
+        quizDatabase = quizDatabase.concat(newQuestions);
 
-    const newQ = {question: q, options: opts, answer: ans};
-    allQuestions.push(newQ);
-    localStorage.setItem("quizQuestions", JSON.stringify(allQuestions));
+        // Clear textarea and show success
+        document.getElementById('questionInput').value = '';
+        document.getElementById('message').textContent = `Saved ${newQuestions.length} questions successfully!`;
 
-    document.getElementById("admin-msg").innerText = "Question added successfully!";
-    document.getElementById("admin-question").value = "";
-    document.getElementById("admin-opt0").value = "";
-    document.getElementById("admin-opt1").value = "";
-    document.getElementById("admin-opt2").value = "";
-    document.getElementById("admin-opt3").value = "";
-    document.getElementById("admin-answer").value = "0";
+        console.log("Current Quiz Database:", quizDatabase); // for testing
+    } catch (err) {
+        document.getElementById('message').textContent = "Error: Invalid question format!";
+        console.error(err);
+    }
 }
-
-// =================== Quiz Functions ===================
-function startQuiz(num) {
-    if (!allQuestions.length) { alert("No questions available! Add via Admin Panel."); return; }
-    currentQuiz = [...allQuestions];
-    if(num !== 'all') { shuffleArray(currentQuiz); currentQuiz = currentQuiz.slice(0,num); }
-    currentIndex = 0; score = 0;
-    showQuizCard(); showQuestion();
-}
-function showQuizCard() {
-    document.getElementById("home-card").style.display = "none";
-    document.getElementById("quiz-card").style.display = "block";
-    document.getElementById("result-card").style.display = "none";
-    document.getElementById("admin-card").style.display = "none";
-}
-function showQuestion() {
-    const q = currentQuiz[currentIndex];
-    const qText = document.getElementById("question-text");
-    const optionsDiv = document.getElementById("options");
-    qText.innerText = `Q${currentIndex+1}: ${q.question}`;
-    optionsDiv.innerHTML = "";
-    q.options.forEach((opt,i)=>{
-        const btn = document.createElement("button");
-        btn.className = "option-btn";
-        btn.innerText = opt;
-        btn.onclick = ()=>checkAnswer(i);
-        optionsDiv.appendChild(btn);
-    });
-}
-function checkAnswer(selected) {
-    const q = currentQuiz[currentIndex];
-    const buttons = document.querySelectorAll(".option-btn");
-    buttons.forEach((btn,i)=>{
-        btn.disabled = true;
-        if(i===q.answer) btn.classList.add("correct");
-        if(i===selected && i!==q.answer) btn.classList.add("wrong");
-    });
-    if(selected===q.answer) score++;
-}
-function nextQuestion() { if(currentIndex<currentQuiz.length-1){ currentIndex++; showQuestion(); } }
-function prevQuestion() { if(currentIndex>0){ currentIndex--; showQuestion(); } }
-function submitQuiz() {
-    document.getElementById("quiz-card").style.display="none";
-    document.getElementById("result-card").style.display="block";
-    document.getElementById("result").innerText = `Your Score: ${score} / ${currentQuiz.length}`;
-}
-function backHome() {
-    document.getElementById("home-card").style.display="block";
-    document.getElementById("quiz-card").style.display="none";
-    document.getElementById("result-card").style.display="none";
-    document.getElementById("admin-card").style.display="none";
-}
-function startReadMode() {
-    if (!allQuestions.length) { alert("No questions available! Add via Admin Panel."); return; }
-    currentQuiz = [...allQuestions]; currentIndex=0;
-    showQuizCard();
-    const qText=document.getElementById("question-text");
-    const optionsDiv=document.getElementById("options");
-    optionsDiv.innerHTML="";
-    currentQuiz.forEach((q,idx)=>{
-        const div=document.createElement("div");
-        div.style.marginBottom="1rem";
-        div.innerHTML = `<strong>Q${idx+1}: ${q.question}</strong><br>
-        ${q.options.map((opt,i)=>`<span style="display:block;${i===q.answer?'color:green;font-weight:bold;':''}">${opt}</span>`).join('')}`;
-        optionsDiv.appendChild(div);
-    });
-}
-
-// ========== Utility ==========
-function shuffleArray(array){ for(let i=array.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [array[i],array[j]]=[array[j],array[i]]; } }
-
 </script>
 
 </body>
