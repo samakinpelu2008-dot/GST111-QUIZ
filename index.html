@@ -8,34 +8,45 @@
 body{min-height:100vh;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;justify-content:center;align-items:center;}
 .container{width:960px;padding:20px;}
 h1{color:#fff;text-align:center;margin-bottom:30px;}
+
 .mode-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:25px;}
 .mode-card{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-radius:22px;padding:50px 20px;box-shadow:0 20px 40px rgba(0,0,0,0.25);cursor:pointer;transition:0.2s;display:flex;flex-direction:column;align-items:center;text-align:center;}
 .mode-card:hover{transform:translateY(-5px);box-shadow:0 25px 50px rgba(0,0,0,0.35);}
 .mode-card h2{margin-bottom:10px;font-size:24px;}
 .mode-card p{font-size:14px;color:#e0e0ff;}
+
 .card{display:none;background:#fff;border-radius:22px;padding:30px;box-shadow:0 20px 40px rgba(0,0,0,0.25);animation:fade .3s ease;}
 @keyframes fade{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
 #homeBtn{background:#667eea;color:#fff;padding:10px 15px;border:none;border-radius:12px;cursor:pointer;margin-bottom:20px;}
+
 .timer{float:right;font-size:14px;color:#555;}
 .progress{font-size:14px;color:#666;margin-bottom:15px;}
-.question{font-size:20px;font-weight:600;margin-bottom:20px;min-height:70px;}
-.options{display:grid;gap:12px;}
-.option{padding:14px;border-radius:14px;background:#f2f4ff;cursor:pointer;border:2px solid transparent;transition:.2s;}
+.question{font-size:22px;font-weight:600;margin-bottom:20px;min-height:120px;padding:20px;background:#f2f4ff;border-radius:20px;}
+.options{display:grid;gap:12px;margin-bottom:15px;}
+.option{padding:16px;border-radius:14px;background:#f2f4ff;cursor:pointer;border:2px solid transparent;transition:.2s;}
 .option:hover{background:#e3e8ff;}
 .option.selected{border-color:#667eea;}
 .option.correct{background:#d6f5dc;border-color:#2ecc71;}
 .option.wrong{background:#ffd6d6;border-color:#e74c3c;}
+
 .nav{display:flex;justify-content:space-between;margin-top:25px;}
 .nav button{padding:10px 18px;border-radius:12px;border:none;cursor:pointer;background:#667eea;color:#fff;}
 .nav button:disabled{background:#ccc;}
 #timeSelect{margin-left:10px;padding:5px;border-radius:8px;}
 #submitBtn{background:#2ecc71;color:#fff;padding:10px 18px;border:none;border-radius:12px;cursor:pointer;margin-left:10px;}
+
+#resultCard{display:none;background:#fff;border-radius:22px;padding:40px;box-shadow:0 20px 50px rgba(0,0,0,0.3);text-align:center;}
+#resultCard h2{margin-bottom:20px;}
+#resultCard p{font-size:18px;margin-bottom:20px;}
+#resultCard button{padding:12px 20px;border-radius:12px;border:none;background:#667eea;color:#fff;cursor:pointer;}
 </style>
 </head>
 <body>
 <div class="container">
 <h1>📘 Ultimate Quiz App</h1>
 
+<!-- MODE SELECTION -->
 <div class="mode-grid" id="modeBox">
 <div class="mode-card" onclick="handleModeClick('read')"><h2>📖 Read Mode</h2><p>Study questions with answers highlighted</p></div>
 <div class="mode-card" onclick="handleModeClick('all')"><h2>📝 Solve All</h2><p>Immediate feedback after selection</p></div>
@@ -43,18 +54,23 @@ h1{color:#fff;text-align:center;margin-bottom:30px;}
 <div class="mode-card" onclick="handleModeClick('random30')"><h2>⏱ Random 30</h2><p>Set timer, 30 questions</p></div>
 </div>
 
+<!-- QUIZ CARD -->
 <div class="card" id="quizCard">
 <button id="homeBtn" onclick="goHome()">🏠 Home</button>
+
 <div style="margin-bottom:15px;">
 <span class="timer" id="timer"></span>
-<span>Set Timer: <select id="timeSelect">
+<span>
+Set Timer: <select id="timeSelect">
 <option value="5">5 min</option>
 <option value="10">10 min</option>
 <option value="15" selected>15 min</option>
 <option value="20">20 min</option>
 </select>
-<button id="submitBtn" onclick="submitQuiz()">Submit</button></span>
+<button id="submitBtn" onclick="submitQuiz()">Submit</button>
+</span>
 </div>
+
 <div class="progress" id="progress"></div>
 <div class="question" id="questionText"></div>
 <div class="options" id="optionsBox"></div>
@@ -63,10 +79,16 @@ h1{color:#fff;text-align:center;margin-bottom:30px;}
 <button onclick="nextQ()">Next ➡</button>
 </div>
 </div>
+
+<!-- RESULT CARD -->
+<div class="card" id="resultCard">
+<h2>🎉 Quiz Completed!</h2>
+<p id="scoreText"></p>
+<button onclick="goHome()">🏠 Return Home</button>
 </div>
 
 <script>
-// ===== EMBEDDED QUESTIONS =====
+// ===== QUESTIONS =====
 const QUESTIONS = [
 { q:"What is the largest planet in our solar system?",options:["Earth","Mars","Jupiter","Saturn"],answer:2 },
 { q:"What is H2O commonly known as?",options:["Oxygen","Water","Hydrogen","Salt"],answer:1 },
@@ -107,14 +129,15 @@ if(resumedMode){localStorage.removeItem("selectedModeAfterRedirect");startQuiz(r
 });
 
 function startQuiz(selectedMode){
-mode=selectedMode;index=0;answers={};
-if(mode==="all"||mode==="read"){quizQuestions=[...QUESTIONS];}
-if(mode==="random15"){quizQuestions=shuffle([...QUESTIONS]).slice(0,15);}
-if(mode==="random30"){quizQuestions=shuffle([...QUESTIONS]).slice(0,30);}
+mode=selectedMode; index=0; answers={};
+if(mode==="all"||mode==="read"){ quizQuestions=[...QUESTIONS]; }
+if(mode==="random15"){ quizQuestions=shuffle([...QUESTIONS]).slice(0,15); }
+if(mode==="random30"){ quizQuestions=shuffle([...QUESTIONS]).slice(0,30); }
 document.getElementById("modeBox").style.display="none";
 document.getElementById("quizCard").style.display="block";
+document.getElementById("resultCard").style.display="none";
 timeLeft=parseInt(document.getElementById("timeSelect").value)*60;
-if(mode==="random15"||mode==="random30"){startTimer(timeLeft);}
+if(mode==="random15"||mode==="random30"){ startTimer(timeLeft); } else { document.getElementById("timer").innerText=""; }
 render();
 }
 
@@ -122,35 +145,36 @@ function render(){
 const q=quizQuestions[index];
 document.getElementById("progress").innerText=`Question ${index+1} of ${quizQuestions.length}`;
 document.getElementById("questionText").innerText=q.q;
-const box=document.getElementById("optionsBox");box.innerHTML="";
+const box=document.getElementById("optionsBox"); box.innerHTML="";
 q.options.forEach((opt,i)=>{
-const div=document.createElement("div");div.className="option";div.innerText=opt;
+const div=document.createElement("div"); div.className="option"; div.innerText=opt;
 if(mode==="read" && i===q.answer) div.classList.add("correct");
-if(answers[index]!==undefined){ // feedback for Solve All & Random
+if(answers[index]!==undefined){
 if(i===q.answer) div.classList.add("correct");
 if(i===answers[index] && answers[index]!==q.answer) div.classList.add("wrong");
 if(answers[index]===i && i===q.answer) div.classList.add("correct");
 }
-div.onclick=()=>{
-if(mode==="read") return;
-answers[index]=i; render();
-};
+div.onclick=()=>{ if(mode==="read") return; answers[index]=i; render(); };
 box.appendChild(div);
 });
 }
 
-function nextQ(){if(index<quizQuestions.length-1){index++;render();}}
-function prevQ(){if(index>0){index--;render();}}
-function goHome(){clearInterval(timerInterval);document.getElementById("quizCard").style.display="none";document.getElementById("modeBox").style.display="grid";}
-function startTimer(seconds){timeLeft=seconds;updateTimer();timerInterval=setInterval(()=>{timeLeft--;updateTimer();if(timeLeft<=0){submitQuiz();}},1000);}
-function updateTimer(){const m=Math.floor(timeLeft/60),s=timeLeft%60;document.getElementById("timer").innerText=`Time: ${m}:${s.toString().padStart(2,"0")}`;}
-function shuffle(arr){return arr.sort(()=>Math.random()-0.5);}
+function nextQ(){ if(index<quizQuestions.length-1){ index++; render(); } else { submitQuiz(); } }
+function prevQ(){ if(index>0){ index--; render(); } }
+
+function goHome(){ clearInterval(timerInterval); document.getElementById("quizCard").style.display="none"; document.getElementById("resultCard").style.display="none"; document.getElementById("modeBox").style.display="grid"; }
+
+function startTimer(seconds){ timeLeft=seconds; updateTimer(); timerInterval=setInterval(()=>{ timeLeft--; updateTimer(); if(timeLeft<=0) submitQuiz(); },1000); }
+function updateTimer(){ const m=Math.floor(timeLeft/60), s=timeLeft%60; document.getElementById("timer").innerText=`Time: ${m}:${s.toString().padStart(2,"0")}`; }
+function shuffle(arr){ return arr.sort(()=>Math.random()-0.5); }
+
 function submitQuiz(){
 clearInterval(timerInterval);
-let total=quizQuestions.length,correct=0;
+let total=quizQuestions.length, correct=0;
 quizQuestions.forEach((q,i)=>{if(answers[i]===q.answer) correct++;});
-alert(`Score: ${correct}/${total} (${Math.round(correct/total*100)}%)`);
-goHome();
+document.getElementById("quizCard").style.display="none";
+document.getElementById("resultCard").style.display="block";
+document.getElementById("scoreText").innerText=`Your Score: ${correct}/${total} (${Math.round(correct/total*100)}%)`;
 }
 </script>
 </body>
