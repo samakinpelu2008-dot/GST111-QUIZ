@@ -6,10 +6,9 @@
 <title>Ultimate Quiz App</title>
 <style>
     body {
-        font-family: 'Arial', sans-serif;
+        font-family: Arial, sans-serif;
         margin: 0;
-        padding: 0;
-        background: #f0edf7;
+        background: #f0e6fa;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -17,114 +16,83 @@
 
     header {
         width: 100%;
-        background: #6f42c1;
+        background: #6a0dad; /* purple header */
         color: white;
-        padding: 1.5rem;
+        padding: 1rem;
         text-align: center;
-        font-size: 2rem;
-        font-weight: bold;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    }
-
-    .home-cards {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        margin-top: 2rem;
-        gap: 2rem;
+        font-size: 1.5rem;
     }
 
     .card {
-        background: #6f42c1;
-        color: white;
-        width: 200px;
-        height: 150px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        font-size: 1.2rem;
-        border-radius: 15px;
-        cursor: pointer;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        transition: transform 0.3s, background 0.3s;
-    }
-
-    .card:hover {
-        transform: translateY(-5px);
-        background: #5a32a3;
-    }
-
-    #quiz-card, #result-card {
-        display: none;
         width: 90%;
         max-width: 900px;
-        background: #ffffff;
-        border-radius: 15px;
+        margin: 1rem auto;
         padding: 2rem;
-        margin: 2rem auto;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        background: #9b59b6; /* purple card */
+        color: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     }
 
     #question-text {
-        font-size: 1.5rem;
-        margin-bottom: 2rem;
-        min-height: 120px;
+        font-size: 1.4rem;
+        margin-bottom: 1.5rem;
     }
 
     .option-btn {
         display: block;
         width: 100%;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        border-radius: 10px;
-        border: 2px solid #6f42c1;
-        background: #f0edf7;
-        color: #333;
-        font-size: 1.1rem;
-        cursor: pointer;
         text-align: left;
-        transition: 0.3s;
+        padding: 0.8rem 1rem;
+        margin: 0.5rem 0;
+        border: 2px solid white;
+        border-radius: 10px;
+        background: #af7ac5; /* lighter purple */
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s;
     }
 
     .option-btn:hover {
-        background: #e1d9f7;
+        background: #8e44ad;
     }
 
     .btn-container {
-        margin-top: 2rem;
         display: flex;
         justify-content: space-between;
+        margin-top: 1rem;
     }
 
     .btn {
         padding: 0.8rem 1.5rem;
         border: none;
         border-radius: 10px;
-        font-size: 1rem;
         cursor: pointer;
+        font-size: 1rem;
         color: white;
-        background: #6f42c1;
+        background: #6a0dad;
         transition: 0.3s;
     }
 
-    .btn:hover {
-        background: #5a32a3;
-    }
-
-    .correct { background: #28a745 !important; color: white; }
-    .wrong { background: #dc3545 !important; color: white; }
+    .btn:hover { background: #4b0082; }
 
     #timer {
-        font-size: 1.3rem;
+        font-size: 1.2rem;
         margin-bottom: 1rem;
-        text-align: right;
+        color: white;
     }
 
     #result {
         font-size: 1.4rem;
         text-align: center;
+    }
+
+    /* Read Mode */
+    .read-question {
         margin-bottom: 1rem;
+        background: #af7ac5;
+        padding: 1rem;
+        border-radius: 10px;
     }
 </style>
 </head>
@@ -132,14 +100,17 @@
 
 <header>Ultimate Quiz App</header>
 
-<div class="home-cards">
-    <div class="card" onclick="startQuiz('all')">Solve All Questions</div>
-    <div class="card" onclick="startQuiz(15)">15 Questions</div>
-    <div class="card" onclick="startQuiz(30)">30 Questions</div>
-    <div class="card" onclick="startReadMode()">Read Mode</div>
+<!-- HOME / MODE SELECTION CARD -->
+<div class="card" id="home-card">
+    <h2>Select Quiz Mode</h2>
+    <button class="btn" onclick="startQuiz(15)">15 Questions</button>
+    <button class="btn" onclick="startQuiz(30)">30 Questions</button>
+    <button class="btn" onclick="startQuiz('all')">Solve All</button>
+    <button class="btn" onclick="startReadMode()">Read Mode</button>
 </div>
 
-<div id="quiz-card">
+<!-- QUIZ CARD -->
+<div class="card" id="quiz-card" style="display:none;">
     <div id="timer"></div>
     <div id="question-text"></div>
     <div id="options"></div>
@@ -151,21 +122,38 @@
     </div>
 </div>
 
-<div id="result-card">
+<!-- READ MODE CARD -->
+<div class="card" id="read-card" style="display:none;">
+    <h3>Read Mode: Review All Questions</h3>
+    <div id="read-questions"></div>
+    <button class="btn" onclick="backHome()">Back to Home</button>
+</div>
+
+<!-- RESULT CARD -->
+<div class="card" id="result-card" style="display:none;">
     <div id="result"></div>
     <button class="btn" onclick="backHome()">Back to Home</button>
 </div>
 
 <script>
-/********************
-  PASTE QUESTIONS HERE
-  Format:
-  const questions = [
-    {q: "Question 1", options: ["A", "B", "C", "D"], answer: 0},
-    {q: "Question 2", options: ["A", "B", "C", "D"], answer: 2},
+/* ==== WHERE TO DROP YOUR 110 QUESTIONS ==== */
+/* 
+Structure:
+Each question is an object with:
+{
+    question: "Your question text",
+    options: ["Option A", "Option B", "Option C", "Option D"],
+    answer: 0 // index of the correct answer (0=A,1=B,2=C,3=D)
+}
+
+Example:
+questions = [
+    { question: "The major role of WBCs is", options: ["Vasodilation", "Transport of digested food", "Combating infections", "None"], answer: 2 },
+    { question: "The organ responsible for the destruction of platelets is", options: ["Spleen", "Heart", "Kidney", "Tissues"], answer: 0 },
     ...
-  ];
-********************/
+];
+*/
+
 const questions = [
 {
     question: "The major role of WBCs is",
@@ -331,77 +319,106 @@ const questions = [
 {question: "Which of the following is not part of life span of blood thrombocytes", options: ["5","9","3","6"], answer: 2}
 ];
 
-let currentQ = 0;
+let currentQuestion = 0;
 let selectedAnswers = [];
+let quizLength = 0;
+let timerInterval;
+let timeLeft = 0;
 
-function startQuiz(count) {
-    document.querySelector('.home-cards').style.display = 'none';
+function startQuiz(num) {
+    document.getElementById('home-card').style.display = 'none';
     document.getElementById('quiz-card').style.display = 'block';
-    currentQ = 0;
-    selectedAnswers = Array(questions.length).fill(null);
+    document.getElementById('read-card').style.display = 'none';
+    document.getElementById('result-card').style.display = 'none';
 
-    if(count === 'all') {
-        showQuestion(0);
-    } else {
-        showQuestion(0, count);
-    }
+    if(num === 'all') quizLength = questions.length;
+    else quizLength = num;
+
+    currentQuestion = 0;
+    selectedAnswers = new Array(quizLength).fill(null);
+    timeLeft = quizLength * 60; // 1 min per question
+    showQuestion();
+    startTimer();
 }
 
-function startReadMode() {
-    document.querySelector('.home-cards').style.display = 'none';
-    document.getElementById('quiz-card').style.display = 'block';
-    currentQ = 0;
-    selectedAnswers = Array(questions.length).fill(null);
-    showQuestion(0);
-}
-
-function showQuestion(index) {
-    const q = questions[index];
-    if(!q) return;
-    document.getElementById('question-text').innerText = (index+1) + ". " + q.q;
-    const optionsDiv = document.getElementById('options');
-    optionsDiv.innerHTML = "";
-    q.options.forEach((opt, i) => {
-        const btn = document.createElement('button');
-        btn.classList.add('option-btn');
-        btn.innerText = opt;
-        btn.onclick = () => selectAnswer(i);
-        if(selectedAnswers[index] === i) btn.style.background = '#d1c4e9';
-        optionsDiv.appendChild(btn);
+function showQuestion() {
+    let q = questions[currentQuestion];
+    document.getElementById('question-text').innerText = `${currentQuestion+1}. ${q.question}`;
+    let optionsHtml = '';
+    q.options.forEach((opt, idx) => {
+        optionsHtml += `<button class="option-btn" onclick="selectAnswer(${idx})">${opt}</button>`;
     });
+    document.getElementById('options').innerHTML = optionsHtml;
+    highlightSelected();
 }
 
-function selectAnswer(optIndex) {
-    selectedAnswers[currentQ] = optIndex;
-    showQuestion(currentQ);
+function selectAnswer(idx) {
+    selectedAnswers[currentQuestion] = idx;
+    highlightSelected();
 }
 
-function nextQuestion() {
-    if(currentQ < questions.length -1) currentQ++;
-    showQuestion(currentQ);
+function highlightSelected() {
+    let buttons = document.querySelectorAll('#options .option-btn');
+    buttons.forEach((btn, i) => {
+        btn.style.background = '#af7ac5'; // default
+        if(selectedAnswers[currentQuestion] === i) btn.style.background = '#4b0082';
+    });
 }
 
 function prevQuestion() {
-    if(currentQ > 0) currentQ--;
-    showQuestion(currentQ);
+    if(currentQuestion>0){ currentQuestion--; showQuestion();}
+}
+
+function nextQuestion() {
+    if(currentQuestion<quizLength-1){ currentQuestion++; showQuestion();}
 }
 
 function submitQuiz() {
+    clearInterval(timerInterval);
     let score = 0;
-    questions.forEach((q, i) => {
-        if(selectedAnswers[i] === q.answer) score++;
-    });
-    document.getElementById('quiz-card').style.display = 'none';
-    document.getElementById('result-card').style.display = 'block';
-    document.getElementById('result').innerText = `You scored ${score} out of ${questions.length}`;
+    for(let i=0;i<quizLength;i++){
+        if(selectedAnswers[i] === questions[i].answer) score++;
+    }
+    document.getElementById('quiz-card').style.display='none';
+    document.getElementById('result-card').style.display='block';
+    document.getElementById('result').innerHTML = `Your Score: ${score} / ${quizLength}`;
 }
 
 function backHome() {
-    document.getElementById('quiz-card').style.display = 'none';
-    document.getElementById('result-card').style.display = 'none';
-    document.querySelector('.home-cards').style.display = 'flex';
+    clearInterval(timerInterval);
+    document.getElementById('home-card').style.display='block';
+    document.getElementById('quiz-card').style.display='none';
+    document.getElementById('read-card').style.display='none';
+    document.getElementById('result-card').style.display='none';
 }
-</script>
 
+function startReadMode() {
+    document.getElementById('home-card').style.display='none';
+    document.getElementById('quiz-card').style.display='none';
+    document.getElementById('read-card').style.display='block';
+    document.getElementById('result-card').style.display='none';
+    let html = '';
+    questions.forEach((q,i)=>{
+        html += `<div class="read-question">${i+1}. ${q.question}<br>
+        A: ${q.options[0]}<br>
+        B: ${q.options[1]}<br>
+        C: ${q.options[2]}<br>
+        D: ${q.options[3]}<br>
+        Correct Answer: ${q.options[q.answer]}
+        </div>`;
+    });
+    document.getElementById('read-questions').innerHTML = html;
+}
+
+function startTimer() {
+    document.getElementById('timer').innerText = `Time Left: ${timeLeft}s`;
+    timerInterval = setInterval(()=>{
+        timeLeft--;
+        document.getElementById('timer').innerText = `Time Left: ${timeLeft}s`;
+        if(timeLeft <=0){ clearInterval(timerInterval); submitQuiz(); }
+    },1000);
+}
+
+</script>
 </body>
-    </html>
+</html>
