@@ -1,155 +1,273 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LAUTECH CBT – English Quiz</title>
-<style>
-body{font-family:Arial;background:#f4f6fa;padding:20px}
-.container{max-width:900px;margin:auto;background:#fff;padding:20px;border-radius:8px}
-.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
-#timer{font-weight:bold;color:#b91c1c}
-.option{display:block;margin:6px 0}
-.nav{display:flex;justify-content:space-between;margin-top:15px}
-.navigator{display:grid;grid-template-columns:repeat(auto-fill,40px);gap:6px;margin-top:15px}
-.navigator button{padding:6px;border:none;border-radius:4px;cursor:pointer}
-.unsolved{background:#e5e7eb}
-.solved{background:#22c55e;color:#fff}
-.main{background:#2563eb;color:#fff;border:none;padding:10px 16px;border-radius:5px;cursor:pointer}
-.main:hover{background:#1e40af}
-.review{margin-top:20px}
-</style>
+  <meta charset="UTF-8" />
+  <title>Quiz App</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Segoe UI", system-ui, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #222;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+
+    /* MODE SELECTION */
+    .mode-box {
+      background: #fff;
+      border-radius: 22px;
+      padding: 25px;
+      box-shadow: 0 20px 40px rgba(0,0,0,.2);
+    }
+
+    .mode-box button {
+      width: 100%;
+      margin: 10px 0;
+      padding: 14px;
+      border: none;
+      border-radius: 14px;
+      font-size: 16px;
+      cursor: pointer;
+      background: #667eea;
+      color: #fff;
+    }
+
+    /* QUIZ CARD */
+    .card {
+      display: none;
+      background: #fff;
+      border-radius: 22px;
+      padding: 25px;
+      box-shadow: 0 20px 40px rgba(0,0,0,.2);
+      animation: fade .3s ease;
+    }
+
+    .progress {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 15px;
+    }
+
+    .question {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .options {
+      display: grid;
+      gap: 12px;
+    }
+
+    .option {
+      padding: 14px;
+      border-radius: 14px;
+      background: #f2f4ff;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: .2s;
+    }
+
+    .option:hover {
+      background: #e3e8ff;
+    }
+
+    .option.selected {
+      border-color: #667eea;
+    }
+
+    .option.correct {
+      background: #d6f5dc;
+      border-color: #2ecc71;
+    }
+
+    .option.wrong {
+      background: #ffd6d6;
+      border-color: #e74c3c;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 25px;
+    }
+
+    .nav button {
+      padding: 10px 18px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      background: #667eea;
+      color: #fff;
+    }
+
+    .nav button:disabled {
+      background: #ccc;
+    }
+
+    .timer {
+      text-align: right;
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 10px;
+    }
+
+    @keyframes fade {
+      from {opacity:0; transform: translateY(10px);}
+      to {opacity:1; transform: translateY(0);}
+    }
+  </style>
 </head>
 <body>
+
 <div class="container">
-<h2>LAUTECH CBT – English (50 Questions)</h2><div class="top">
-<select id="timeSelect">
-<option value="10">10 mins</option>
-<option value="20">20 mins</option>
-<option value="30">30 mins</option>
-<option value="40">40 mins</option>
-</select>
-<div id="timer">Time: --:--</div>
-</div><button class="main" onclick="startQuiz()">Start Exam</button>
 
-<div id="exam" style="display:none">
-  <div id="questionBox"></div>  <div class="nav">
-    <button class="main" onclick="prevQ()">Previous</button>
-    <button class="main" onclick="nextQ()">Next</button>
-    <button class="main" onclick="submitQuiz()">Submit</button>
-  </div>  <div class="navigator" id="navigator"></div>
-  <div id="result"></div>
+  <h1>📘 Quiz App</h1>
+
+  <!-- MODE SELECTION -->
+  <div class="mode-box" id="modeBox">
+    <button onclick="startQuiz('read')">📖 Read Mode</button>
+    <button onclick="startQuiz('all')">📝 Solve All</button>
+    <button onclick="startQuiz('random15')">⏱ Random 15</button>
+    <button onclick="startQuiz('random30')">⏱ Random 30</button>
+  </div>
+
+  <!-- QUIZ CARD -->
+  <div class="card" id="quizCard">
+    <div class="timer" id="timer"></div>
+    <div class="progress" id="progress"></div>
+    <div class="question" id="questionText"></div>
+    <div class="options" id="optionsBox"></div>
+
+    <div class="nav">
+      <button onclick="prevQ()">⬅ Prev</button>
+      <button onclick="nextQ()">Next ➡</button>
+    </div>
+  </div>
+
 </div>
-</div><script>
-// ===== QUESTIONS (ALL 50) =====
-const questions=[
-{q:"As it was impossible to convey the corpse home, the body was ___",o:["Incriminated","Preserved","Embalmed","Cremated"],a:3},
-{q:"Bursary awards were re-introduced ___ due consideration",o:["in view of","because of","owing to","after"],a:3},
-{q:"Recent economic challenges strengthened John’s ___ to accept gateman’s job",o:["Resolve","Decision","Interest","Opening"],a:1},
-{q:"The modal auxiliary verb in ‘I can play football very well’ expresses",o:["Ability","Willingness","Possibility","Obligation"],a:0},
-{q:"If a student reads 2000 words in 6mins 40seconds, the WPM is",o:["540","600","520","300"],a:3},
-{q:"Sentence which contains two independent clauses is",o:["Simple","Compound","Complex","Phrase"],a:1},
-{q:"There is always ___ of talents among age-mates",o:["An anomaly","A distinction","An inequality","An abundance"],a:2},
-{q:"It is advisable to ___ any polluted water",o:["Clear","Sanitize","Sterilize","Purify"],a:3},
-{q:"He carried out the investigation ___",o:["Hurriedly","Impatiently","Haphazardly","Impartially"],a:2},
-{q:"The committee determined the immediate and ___ causes",o:["Delayed","Obscure","Remote","Later"],a:2},
-{q:"Sentences are broadly classified into",o:["4","2","5","3"],a:3},
-{q:"There are ___ broad types of clause in English",o:["2","3","4","5"],a:3},
-{q:"The word 'spirit' is a/an ___ noun",o:["Collective","Abstract","Proper","Genitive"],a:1},
-{q:"The verb 'read' in 'He reads seriously' is a/an ___ verb",o:["Abstract","Collective","Proper","Genitive"],a:0},
-{q:"In 'He gave her something to give them or us' there are ___ pronouns",o:["2","3","4","5"],a:3},
-{q:"The word 'Beautify' can be segmented as",o:["Beautify+o","Beauty+o","Beauty+fy","Be+autify"],a:2},
-{q:"Paragraphs are categorized into ___ major kinds",o:["2","3","4","5"],a:0},
-{q:"The morpheme added in 'used' is",o:["-ed","-d","-us","-u"],a:1},
-{q:"Paragraph coherence entails arrangement of ___ sentences",o:["Coherence","Meaningful","Logical","Sentential"],a:2},
-{q:"Percentage of noun elements in 'The students are in the class'",o:["24.2%","50%","66.6%","33.33%"],a:3},
-{q:"Words that link sentences smoothly are",o:["Acronym devices","Important devices","Transitional devices","Parental devices"],a:2},
-{q:"My teacher and sister ___ advised me",o:["have","has","is","was"],a:1},
-{q:"Seven hours ___ spent already",o:["was been","is been","has been","have been"],a:2},
-{q:"Twenty kilometres ___ covered",o:["has been","have been","has being","have being"],a:0},
-{q:"I, your creator, ___ the one teaching you",o:["is","am","has been","have being"],a:1},
-{q:"More than one hostel ___ built annually",o:["have been","has being","are","is"],a:3},
-{q:"The President made a nation-wide ___",o:["Broadcast","Prophecy","Polemics","Decree"],a:0},
-{q:"Commission of inquiry ___ the award of contracts",o:["about","for","into","to"],a:2},
-{q:"Dr. Stone’s lecture gave me great ___",o:["Glimpse","Knowledge","Insight","Opening"],a:2},
-{q:"The former is a teacher and the ___ is a nurse",o:["Later","Other","Prior","Latter"],a:3},
-{q:"He wants ___ persons",o:["Experimental","Experienced","Exposed","Experience"],a:1},
-{q:"The Holy Book ___ we should be honest",o:["said","says","had said","was saying"],a:1},
-{q:"Evidence before us ___ the case",o:["proves","prove","are proving","are proven"],a:0},
-{q:"Neither the leader nor followers will lose ___ popularity",o:["his","their","the","our"],a:1},
-{q:"The workers as well as their boss ___ late often",o:["works","work","is working","does work late"],a:1},
-{q:"Four hours fifteen minutes ___ enough",o:["are","were","is","have been"],a:2},
-{q:"One of the lawmakers who ___ at the Senate",o:["are","was","were","is"],a:3},
-{q:"Aeroplane ___ strict monitoring",o:["requires","require","do requires","does require"],a:0},
-{q:"His routine ___ sweeping",o:["comprises","comprises of","consists","consist of"],a:2},
-{q:"How to read many books ___ not difficult",o:["are","has","is","have"],a:2},
-{q:"My nephew earned his ___ degree",o:["masters","masters'","master's","none"],a:1},
-{q:"There ___ many services available",o:["have being","has been","is","are"],a:3},
-{q:"A popular choice ___ the Premier Hotel suites",o:["is","are","has being","are being"],a:0}
-];
 
-// ===== LOGIC =====
-questions.sort(()=>Math.random()-0.5);
-let index=0;
-let answers=new Array(questions.length).fill(null);
-let timer;
+<script src="questions.js"></script>
+<script>
+  let mode = "";
+  let quizQuestions = [];
+  let index = 0;
+  let answers = {};
+  let timeLeft = 0;
+  let timerInterval = null;
 
-const qBox=document.getElementById('questionBox');
-const navBox=document.getElementById('navigator');
+  function startQuiz(selectedMode) {
+    mode = selectedMode;
+    index = 0;
+    answers = {};
 
-function startQuiz(){
- document.getElementById('exam').style.display='block';
- buildNavigator();
- showQuestion();
- startTimer();
-}
+    if (mode === "all" || mode === "read") {
+      quizQuestions = [...QUESTIONS];
+    }
 
-function showQuestion(){
- const q=questions[index];
- qBox.innerHTML=`<h3>Question ${index+1} of ${questions.length}</h3><p>${q.q}</p>`+
- q.o.map((opt,i)=>`<label class='option'><input type='radio' name='opt' ${answers[index]===i?'checked':''} onclick='saveAnswer(${i})'> ${opt}</label>`).join('');
- updateNavigator();
-}
+    if (mode === "random15") {
+      quizQuestions = shuffle([...QUESTIONS]).slice(0,15);
+      startTimer(15 * 60);
+    }
 
-function saveAnswer(i){answers[index]=i;updateNavigator();}
-function nextQ(){if(index<questions.length-1){index++;showQuestion();}}
-function prevQ(){if(index>0){index--;showQuestion();}}
+    if (mode === "random30") {
+      quizQuestions = shuffle([...QUESTIONS]).slice(0,30);
+      startTimer(30 * 60);
+    }
 
-function buildNavigator(){
- navBox.innerHTML='';
- questions.forEach((_,i)=>{
-  const b=document.createElement('button');
-  b.textContent=i+1;
-  b.onclick=()=>{index=i;showQuestion();};
-  navBox.appendChild(b);
- });
-}
+    document.getElementById("modeBox").style.display = "none";
+    document.getElementById("quizCard").style.display = "block";
 
-function updateNavigator(){
- [...navBox.children].forEach((b,i)=>{
-  b.className=answers[i]!==null?'solved':'unsolved';
- });
-}
+    render();
+  }
 
-function submitQuiz(){
- clearInterval(timer);
- let score=0;
- let review="<div class='review'><h3>Answer Review</h3>";
- answers.forEach((a,i)=>{
-  if(a===questions[i].a) score++;
-  review+=`<p><strong>Q${i+1}:</strong> ${questions[i].q}<br>Correct Answer: <span style='color:green'>${questions[i].o[questions[i].a]}</span></p>`;
- });
- review+='</div>';
- let percent=((score/questions.length)*100).toFixed(2);
- document.getElementById('result').innerHTML=`<h3>Score: ${score}/${questions.length}</h3><h3>Percentage: ${percent}%</h3>${review}`;
-}
+  function render() {
+    const q = quizQuestions[index];
+    document.getElementById("progress").innerText =
+      `Question ${index + 1} of ${quizQuestions.length}`;
+    document.getElementById("questionText").innerText = q.q;
 
-function startTimer(){
- let t=parseInt(document.getElementById('timeSelect').value)*60;
- timer=setInterval(()=>{
-  let m=Math.floor(t/60),s=t%60;
-  document.getElementById('timer').textContent=`Time: ${m}:${String(s).padStart(2,'0')}`;
-  if(--t<0) submitQuiz();
- },1000);
-}
-</script></body>
+    const box = document.getElementById("optionsBox");
+    box.innerHTML = "";
+
+    q.options.forEach((opt, i) => {
+      const div = document.createElement("div");
+      div.className = "option";
+      div.innerText = opt;
+
+      if (mode === "read" && i === q.answer) {
+        div.classList.add("correct");
+      }
+
+      if (answers[index] === i) {
+        div.classList.add("selected");
+      }
+
+      div.onclick = () => {
+        if (mode === "read") return;
+        answers[index] = i;
+        render();
+      };
+
+      box.appendChild(div);
+    });
+  }
+
+  function nextQ() {
+    if (index < quizQuestions.length - 1) {
+      index++;
+      render();
+    }
+  }
+
+  function prevQ() {
+    if (index > 0) {
+      index--;
+      render();
+    }
+  }
+
+  function startTimer(seconds) {
+    timeLeft = seconds;
+    updateTimer();
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      updateTimer();
+      if (timeLeft <= 0) clearInterval(timerInterval);
+    }, 1000);
+  }
+
+  function updateTimer() {
+    const m = Math.floor(timeLeft / 60);
+    const s = timeLeft % 60;
+    document.getElementById("timer").innerText =
+      `Time: ${m}:${s.toString().padStart(2,"0")}`;
+  }
+
+  function shuffle(arr) {
+    return arr.sort(() => Math.random() - 0.5);
+  }
+</script>
+
+</body>
 </html>
