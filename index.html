@@ -159,8 +159,7 @@
 </div>
 
 <script>
-  // ==== PLACEHOLDER FOR QUESTIONS ====
-  // Replace this array with your 110 questions array
+  // ==== DROP YOUR QUESTIONS HERE ====
   const questions = [
 {
     question: "The major role of WBCs is",
@@ -324,7 +323,7 @@ question: "A cell at telophase mitotic contains nuclei", options: ["4","3","2","
 {question: "Which of the following has the smallest size", options: ["erythrocytes","platelets","leucocytes","lymphocytes"], answer: 1},
 {question: "Bulk wastes from alimentary canal are not excretory because", options: ["they are generated within the cell","products of cellular metabolism","none","they have not been produced within cells"], answer: 2},
 {question: "Which of the following is not part of life span of blood thrombocytes", options: ["5","9","3","6"], answer: 2}
-];
+]; // <-- Drop your 110 questions here in the format: { question: "", options: ["","","",""], answer: 0 }
 
   let selectedQuestions = [];
   let currentIndex = 0;
@@ -334,6 +333,11 @@ question: "A cell at telophase mitotic contains nuclei", options: ["4","3","2","
   let totalTime = 0; // in seconds
 
   function startQuiz(qty) {
+    if(allQuestions.length === 0){
+      alert("No questions loaded! Please drop your questions in the code.");
+      return;
+    }
+
     mode = qty;
     currentIndex = 0;
     score = 0;
@@ -342,7 +346,6 @@ question: "A cell at telophase mitotic contains nuclei", options: ["4","3","2","
     selectedQuestions = [];
 
     if (qty === "15" || qty === "30") {
-      // Random selection
       const count = qty === "15" ? 15 : 30;
       let copy = [...allQuestions];
       while(selectedQuestions.length < count && copy.length > 0){
@@ -353,13 +356,12 @@ question: "A cell at telophase mitotic contains nuclei", options: ["4","3","2","
       selectedQuestions = [...allQuestions];
     }
 
-    // Timer setup for quiz modes (not Read Mode)
     if (mode !== "read") {
       totalTime = selectedQuestions.length * 60; // 1 min per question
       updateTimer();
       timerInterval = setInterval(() => {
         totalTime--;
-        if(totalTime <= 0) {
+        if(totalTime <= 0){
           clearInterval(timerInterval);
           submitQuiz();
         }
@@ -372,6 +374,10 @@ question: "A cell at telophase mitotic contains nuclei", options: ["4","3","2","
 
   function startReadMode() {
     mode = "read";
+    if(allQuestions.length === 0){
+      alert("No questions loaded! Please drop your questions in the code.");
+      return;
+    }
     selectedQuestions = [...allQuestions];
     currentIndex = 0;
     document.querySelector('.home-container').style.display = 'none';
@@ -411,11 +417,9 @@ question: "A cell at telophase mitotic contains nuclei", options: ["4","3","2","
         score++;
       } else {
         btn.classList.add('wrong');
-        // Highlight correct option
         const optionButtons = document.querySelectorAll('.option-btn');
         optionButtons[q.answer].classList.add('correct');
       }
-      // Disable all buttons after selection
       const optionButtons = document.querySelectorAll('.option-btn');
       optionButtons.forEach(b => b.disabled = true);
     }
